@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+BoitesFonctionnelles/__pycache__/*
+
+# Resultat JSON + à ranger dossier JSON dans Result
+BoitesFonctionnelles/SortieJson/*
+BoitesRegulatrices/__pycache__
+main/__pycache__
+
+Predict_Target_MiRNA/Raw/*.txt
+Predict_Target_MiRNA/Raw/*.csv
+Predict_Target_MiRNA/Raw/*.html
+Predict_Target_MiRNA/Raw/*.tab
+
+Predict_Target_MiRNA/Result_Json
+Predict_Target_MiRNA/script/__pycache__
+Predict_Target_MiRNA/script/.Rhistory
+Predict_Target_MiRNA/script/DS_Store/*
+
+Result
+/UniprotInteractomics/*.txt
+/UniprotInteractomics/*.tab
+/UniprotInteractomics/*.json
+
