@@ -19,6 +19,10 @@ Predict_Target_MiRNA/script/.Rhistory
 Predict_Target_MiRNA/script/.DS_Store
 Predict_Target_MiRNA/script/__pycache__/*.txt
 
+Predict_Target_MiRNA/script/Predict_targetmiRNA.R
+Predict_Target_MiRNA/script/resultRequest.html
+Predict_Target_MiRNA/script/*.txt
+
 Result
 /UniprotInteractomics/*.txt
 /UniprotInteractomics/*.tab
