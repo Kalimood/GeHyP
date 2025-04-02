@@ -98,8 +98,11 @@ def cleanspace(text):
     output:
         same text without space
     """
-    m_space=re.compile("\s+")
-    text_clean=re.sub(m_space,'',text)
+    m_space=re.compile("\\s+")
+    #m_space=re.compile("\s+")
+    text_clean=re.sub(m_space, '', text)
+    #print("TEXTE CLEAN CORREC"+text_clean)
+    #text_clean=re.sub(m_space,'',text)
     return text_clean
 
 
@@ -324,8 +327,8 @@ def createUtrB(list_mRNA,list_CDS):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser ( description="")
-    parser.add_argument('-c', '--chromosome', dest="chromosome", default='/home/kevin/Bureau/StageM2/homo_sapiens/Homo_sapiens.GRCh38.104.chromosome.1.dat',help="Enter the path to the file which contain all the data of chromosome ending by.dat from Ensembl (/pub/current_embl/'+espece)")
-
+    #parser.add_argument('-c', '--chromosome', dest="chromosome", default='/home/kevin/Bureau/StageM2/homo_sapiens/Homo_sapiens.GRCh38.104.chromosome.1.dat',help="Enter the path to the file which contain all the data of chromosome ending by.dat from Ensembl (/pub/current_embl/'+espece)")
+    parser.add_argument('-c', '--chromosome', dest="chromosome", default='/home/kevin/Bureau/Cours/Fac/Keke/GeHyP/Result/ResultJson',help="Enter the path to the file which contain all the data of chromosome ending by.dat from Ensembl (/pub/current_embl/'+espece)")
     parser.add_argument('-e', '--espece', dest="espece", default='homo_sapiens',
     help="""Enter the name of the specie you want to study""")
 
@@ -344,9 +347,7 @@ if __name__ == "__main__":
     chromosome=args.chromosome
     listPlage=args.plage
     result=args.result
-
-
-    
+    print("RESULT CORREC",result)
     if not os.path.exists(result):
         os.makedirs(result)
     
@@ -426,9 +427,7 @@ if __name__ == "__main__":
     dicoPosition=defaultdict(dict)
 
     choice_chromosome=args.chromosome
-    #print(choice_chromosome)
     
-
     with open(choice_chromosome, mode='rt') as file:
 
         for li in file:
@@ -627,13 +626,12 @@ if __name__ == "__main__":
         
 
     print('--------------------------------------------Ecriture JSON Du Parsing----------------------------------------------------------')
-    localPathExit = result+"/"+str(listPlage)+"/"
+    localPathExit = result+"/"+espece+"/"+str(listPlage)+"/"
     #exit(listPlage)
     localPathExit=cleanspace(localPathExit)
 
-    #print(str(listPlage))
-    print(localPathExit)
-    #print(os.path.exists(localPathExit))
+    print("CHEMIN RESULTAT CORREC",result)
+    print("Chemin SORTIE JSON",localPathExit)
     
     if not os.path.exists(localPathExit):
         os.makedirs(localPathExit)

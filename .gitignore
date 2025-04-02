@@ -28,3 +28,5 @@ Result
 /UniprotInteractomics/*.tab
 /UniprotInteractomics/*.json
 
+#Suivi modifications pour rendre le script le + accessible
+blocCorrectionScript.txt

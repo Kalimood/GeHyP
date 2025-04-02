@@ -3,11 +3,27 @@
 
 
 import requests, sys
+#sys.path.append('/../BoitesFonctionelles/')
 import json
 import os
 import argparse
-
+import logging
+import time
+import re
 from collections import defaultdict
+
+
+
+def cleanspace(text):
+    """What this function does?
+    inputs:
+        text with space
+    output:
+        same text without space
+    """
+    m_space=re.compile("\s+")
+    text_clean=re.sub(m_space,'',text)
+    return text_clean
 
 if __name__ == "__main__":
 
@@ -15,9 +31,11 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--chromosome', dest="chromosome", default='',help="Enter the path to the file which contain the configuration of all program")
     parser.add_argument('-p','--plage',dest="plage", type=int, nargs='+', action='append', 
     help='file list')
-    parser.add_argument('-j','--json',dest="json",default='',help="Enter the path to the file which contain the exit of chromosome.json")
+    parser.add_argument('-j','--json',dest="json",default='/home/kevin/Bureau/Cours/Fac/Keke/GeHyP/Result/ResultJson',help="Enter the path to the file which contain the exit of chromosome.json")
     parser.add_argument('-t','--table',dest="table",default='',help="Enter the path to the file which contain the configuration of all program")
     parser.add_argument('-r','--result',dest="result",default='',help="Enter the path to the file which contain the result of all program")
+
+    parser.add_argument('-e','--espece',dest="espece",default='/home/kevin/Bureau/Cours/Fac/Keke/GeHyP/Result/ResultJson',help="Select which specie)")
 
     args=parser.parse_args()
     chromosome=args.chromosome
@@ -28,11 +46,23 @@ if __name__ == "__main__":
     listPlage=args.plage
     pathTableInteractants=args.table
     pathResult=args.result
+    espece=args.espece
+    print("-------------------")
+    print("pathJSON",args.json)
+    print("-------------------")
+    print("pathTableInteractants",args.table)
+    print("-------------------")
+    print("pathResult",args.result)
 
+    #str(listPlage)
+    
+    nombreGeneCodant=0
     listIdTranscrit=()
     #exit(type(listIdTranscrit))
+    pathResult=cleanspace(pathResult+"/"+str(listPlage)+"/")
     if not os.path.exists(pathResult):
       os.makedirs(pathResult)
+
     with open(pathJson+chromosome,"r") as json_data:
         data=json.load(json_data)
         #print(data)
@@ -40,12 +70,17 @@ if __name__ == "__main__":
             #data={['plage']:{'Type':[{TypeBoite:Val ,Nom:Val , Positions:[[Val]],Locus:Val, Note:Val, NumberBoxe:Val}]}}
             if 'Mrna' in list(data[plage].keys()):
                 for i in data[plage]['Mrna']:
+                    #print(i)
                     listIdTranscrit+=(i['Id_transcrit'].split('.')[0],)
-    
+                    print("coucou")
+                    print(listIdTranscrit,"List Id Transcrit")
+                    
+
+    #print("There is:",nombreGeneCodant,"coding protein in the track")
     #pathTabInteractants='/home/kevin/Bureau/StageM2/Scripttest/UniprotInteractomics/'
     #os.chdir(pathTabInteractants)
 
-    dicoIdUniprot_Ensg=defaultdict(list)
+    dicoIdEnst_Uniprot=defaultdict(list)
     
 
     with open(pathTableInteractants,"r") as f1:
@@ -62,53 +97,59 @@ if __name__ == "__main__":
             #print(UniProtKBGeneNameID)
 
             if len(UniProtKBGeneNameID)>0:
-                dicoIdUniprot_Ensg[idTranscrit].append(UniProtKBGeneNameID)
-
+                dicoIdEnst_Uniprot[idTranscrit].append(UniProtKBGeneNameID)
+    #print(dicoIdEnst_Uniprot["ENST00000295082"])
     #print(listIdTranscrit)
     #exit(dicoIdUniprot_Ensg)
     dicoResult=defaultdict(list)
+    print(dicoResult,"DicoResult")
 
     for i in listIdTranscrit:
-        if i in list(dicoIdUniprot_Ensg.keys()):
+        if i in list(dicoIdEnst_Uniprot.keys()):
           #dicoResult[dicoIdUniprot_Ensg[i]].append(i)
           #print(dicoIdUniprot_Ensg[i])
-          for j in dicoIdUniprot_Ensg[i]:
+          for j in dicoIdEnst_Uniprot[i]:
             dicoResult[j].append(i)
             #dicoResult[j]=(dicoResult[j]+tuple(i))
     lenDico=0
     for i in dicoResult:
       #dicoResult[i]=tuple(dicoResult[i])
       lenDico+=len(dicoResult[i])
-    print(lenDico)
+    #print(lenDico)
     #exit(dicoResult)
-    
-    #print(dicoResult)
+
+    print(dicoResult)
+ 
     dicoIdProtInteract=defaultdict()  
     
     for i in dicoResult:
-      requestURL = "https://www.ebi.ac.uk/proteins/api/proteins/interaction/"
-      requestURL+=i
-      r = requests.get(requestURL, headers={ "Accept" : "application/json"})
-      pathUniprot='/home/kevin/Bureau/StageM2/Scripttest/UniprotInteractomics'
-      if not r.ok:
+        requestURL = "https://www.ebi.ac.uk/proteins/api/proteins/interaction/"
+        requestURL+=i
+        #print(requestURL)
+        r = requests.get(requestURL, headers={ "Accept" : "application/json"})
+
+        if not r.ok:
           #r.raise_for_status()
+            continue
+
+        responseBody = r.text
+        data=json.loads(responseBody)
+
+        dicoInteractant=data[0]
+        #print(dicoInteractant)
+        dicoInteractant['idTranscrit']=dicoResult[i]
         
-        continue
+        with open(pathResult+i+".json","w") as result:
+            json.dump(dicoInteractant,result,indent=2)
+            result.close()
 
-      responseBody = r.text
-      data=json.loads(responseBody)
+        '''
+        with open(pathResult+i+"dicoUniprot_Ensg.json","w") as result2:
+            json.dump(dicoIdEnst_Uniprot,result2,indent=2)
+            result2.close()
+        '''
+      
+      
 
-      dicoInteractant=data[0]
-      dicoInteractant['idTranscrit']=dicoResult[i]
 
-      with open(pathResult +"/"+ i +".json","w") as result:
-        json.dump(dicoInteractant,result,indent=2)
-        result.close()
-
-#exit()
-#print(protein)
-#print(len(listInteractor))
-#print(listInteractants)
-#exit(listInteractants)
-#clé de i : 'accession':Q99706 'name':KI2L4_HUMAN,'proteinExistence':Evidence at protein level,'taxonomy':9606 'interactions':[{}]
-#exit()
+#clé de i : 'accession':Q99706 'name':KI2L4_HUMAN,'proteinExistence':Evidence at protein level,'taxonomy':9606 'interactions':[{}
